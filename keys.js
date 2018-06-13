@@ -1,5 +1,5 @@
 // tom's recommendation
-// require("dotenv").config();
+require("dotenv").config();
 
 // from instructions (example)
 // var spotify = new Spotify(keys.spotify);

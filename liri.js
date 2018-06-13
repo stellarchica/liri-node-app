@@ -1,11 +1,11 @@
-// require("dotenv").config();
+require("dotenv").config();
 
 var keys = require("./keys.js")
 console.log("These are keys",keys)
 
 var request = require("request");
 var twitter = require("twitter");
-var spotify = require("spotify");
+var spotifyAPI = require("node-spotify-api");
 // referenced later as well, is it necessary?
 var client = new twitter(keys.twitterKeys);
 var fs = require("fs");
@@ -25,20 +25,20 @@ var commandTwo = process.argv[3];
 // switches case
 function userSwitch(){
     switch(userCommand){
-        // RESEARCH WHAT THESE DO!!
-        case "my-tweets":
+        
+        case 'my-tweets':
         fetchTweets();
         break;
 
-        case "spotify-this-song":
+        case 'spotify-this-song':
         mySpotify();
         break;
 
-        case "movie-this":
+        case 'movie-this':
         myMovie();
         break;
 
-        case "do-what-it-says":
+        case 'do-what-it-says':
         followDirections();
         break;
     }
@@ -46,7 +46,7 @@ function userSwitch(){
 
 // TWITTER
 function fetchTweets(){
-    console.log("Please hold – fetching tweets now");
+    // console.log("Please hold – fetching tweets now");
 
     var client = new twitter({
         consumer_key: process.env.CONSUMER_KEY,
@@ -61,7 +61,7 @@ function fetchTweets(){
         count: 20
     };
 
-    client.get("statuses/user_timeline",parameters, function(error,tweets,response){
+    client.get("statuses/user_timeline",parameters, function(error, tweets,response){
         if (!error) {
             for (i=0; i<tweets.length; i++) {
                 var returnData = ("Number: " + (i+1) + "\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n");
@@ -74,7 +74,12 @@ function fetchTweets(){
 
 // SPOTIFY
 function mySpotify(){
-    console.log("Look at all these tunes!");
+    // console.log("Look at all these tunes!");
+
+    var spotify = new spotifyAPI ({
+        id: process.env.SPOTIFY_ID,
+        secret: process.env.SPOTIFY_SECRET
+    })
 
     var searchTrack;
     if(commandTwo === undefined){
@@ -98,7 +103,7 @@ function mySpotify(){
 
 // MOVIE
 function myMovie(){
-    console.log("My neck, my back, my Netflix & my snacks");
+    // console.log("My neck, my back, my Netflix & my snacks");
 
     var searchMovie;
     if(commandTwo === undefined){
@@ -106,9 +111,10 @@ function myMovie(){
     }else{
         searchMovie = commandTwo
     };
-
-    var url = "http://www.omdbapi.com/?t=' + searchMovie +'&y=&plot=long&tomatoes=true&r=json";
+    // key in the right place???
+    var url = "http://www.omdbapi.com/?apikey=trilogy&t=" + searchMovie + "&y=&plot=long&tomatoes=true&r=json";
     request(url, function(error, response, body){
+        // console.log(JSON.parse(body))
         // DESCRIBE ERROR CODE / STATUS MEANING
         if(!error && response.statusCode === 200){
 	        console.log("Title: " + JSON.parse(body)["Title"]);
