@@ -5,12 +5,13 @@ console.log("These are keys",keys)
 
 var request = require("request");
 var twitter = require("twitter");
+// v specific
 var spotifyAPI = require("node-spotify-api");
-// referenced later as well, is it necessary?
 var client = new twitter(keys.twitterKeys);
 var fs = require("fs");
 
-// check if works
+// user type
+// do what it says not working completely?
 console.log("Type my-tweets , spotify-this-song , movie-this , or do-what-it-says to get started!");
 
 // argument array
@@ -23,6 +24,7 @@ var commandTwo = process.argv[3];
     }
 
 // switches case
+// allows user to continue
 function userSwitch(){
     switch(userCommand){
         
@@ -48,6 +50,7 @@ function userSwitch(){
 function fetchTweets(){
     // console.log("Please hold – fetching tweets now");
 
+    // referenced in key.js
     var client = new twitter({
         consumer_key: process.env.CONSUMER_KEY,
         consumer_secret: process.env.CONSUMER_SECRET,
@@ -56,16 +59,18 @@ function fetchTweets(){
     });
 
     // establishes twitter function parameters
+    // pulls 20 latest tweets from account
     var parameters = {
         screen_name: "smartinezcodes",
         count: 20
     };
 
+    // determines how info/tweets will be displayed
     client.get("statuses/user_timeline",parameters, function(error, tweets,response){
         if (!error) {
             for (i=0; i<tweets.length; i++) {
-                var returnData = ("Number: " + (i+1) + "\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n");
-                console.log(returnData);
+                var returnTweets = ("Number: " + (i+1) + "\n" + tweets[i].created_at + "\n" + tweets[i].text + "\n");
+                console.log(returnTweets);
                 console.log("-------------------------");
             }
         };
@@ -76,18 +81,22 @@ function fetchTweets(){
 function mySpotify(){
     // console.log("Look at all these tunes!");
 
+    // referenced in keys.js
     var spotify = new spotifyAPI ({
         id: process.env.SPOTIFY_ID,
         secret: process.env.SPOTIFY_SECRET
     })
 
+    // default track
     var searchTrack;
     if(commandTwo === undefined){
         searchTrack = "I Want it That Way"
     }else{
         searchTrack = commandTwo;
     }
+    // user search
 
+    // !!! these diff, technical about naming due to API !!!
     spotify.search({type:"track", query:searchTrack}, function(err,data){
         if(err){
             console.log("Error occured: " + err);
@@ -95,7 +104,8 @@ function mySpotify(){
         }else{
             console.log("Artist: " + data.tracks.items[0].artists[0].name);
 	        console.log("Song: " + data.tracks.items[0].name);
-	        console.log("Album: " + data.tracks.items[0].album.name);
+            console.log("Album: " + data.tracks.items[0].album.name);
+            // not working
 	        console.log("Listen to a preview here: " + data.tracks.items[0].preview_url);
         }
     });
@@ -105,31 +115,36 @@ function mySpotify(){
 function myMovie(){
     // console.log("My neck, my back, my Netflix & my snacks");
 
+    // default movie
     var searchMovie;
     if(commandTwo === undefined){
         searchMovie = "Mr. Nobody";
     }else{
         searchMovie = commandTwo
     };
+    // user movie
+
     // key in the right place???
+    // fixed
     var url = "http://www.omdbapi.com/?apikey=trilogy&t=" + searchMovie + "&y=&plot=long&tomatoes=true&r=json";
     request(url, function(error, response, body){
         // console.log(JSON.parse(body))
-        // DESCRIBE ERROR CODE / STATUS MEANING
+        // overwhelmed before
+        // functioning now
         if(!error && response.statusCode === 200){
 	        console.log("Title: " + JSON.parse(body)["Title"]);
 	        console.log("Year: " + JSON.parse(body)["Year"]);
-	        console.log("IMDB Rating: " + JSON.parse(body)["imdbRating"]);
+            console.log("IMDB Rating: " + JSON.parse(body)["imdbRating"]);
+            console.log("Rotten Tomatoes Rating: " + JSON.parse(body)["tomatoRating"]);
 	        console.log("Country: " + JSON.parse(body)["Country"]);
 	        console.log("Language: " + JSON.parse(body)["Language"]);
 	        console.log("Plot: " + JSON.parse(body)["Plot"]);
 	        console.log("Actors: " + JSON.parse(body)["Actors"]);
-	        console.log("Rotten Tomatoes Rating: " + JSON.parse(body)["tomatoRating"]);
-	        console.log("Rotten Tomatoes URL: " + JSON.parse(body)["tomatoURL"]);
         }
     });
 };
 
+// not fully working with do-what-it-says
 function followDirections(){
     console.log("Reading random.txt now");
     fs.readFile("random.txt", "utf8", function(error, data) {
@@ -148,5 +163,5 @@ function followDirections(){
         };
     });
 };
-
+// essential!!
 userSwitch();
